@@ -27,6 +27,9 @@ class Order_service(Order_use_case, ABC):
     def update_status(self, order_id, status: Status_enum):
         self.order_repository.update_status(order_id, status)
 
+    def get_order_products_by_id(self, order_id: str) -> List[Order_products_domain]:
+        return self.order_repository.get_order_products_by_id(order_id)
+
     def get_all(self) -> List[Order_domain]:
         return self.order_repository.get_all()
 

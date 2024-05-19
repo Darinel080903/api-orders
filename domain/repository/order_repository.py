@@ -23,6 +23,10 @@ class Order_repository(ABC):
         raise NotImplemented
 
     @abstractmethod
+    def get_order_products_by_id(self, order_id: str) -> List[Order_products_domain]:
+        raise NotImplemented
+
+    @abstractmethod
     def get_by_id(self, order_id: str) -> Order_domain:
         raise NotImplemented
 

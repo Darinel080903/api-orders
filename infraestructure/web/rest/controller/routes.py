@@ -1,6 +1,8 @@
 from typing import List
 
 from fastapi import APIRouter
+
+from infraestructure.configuration.rabbit_connection import RabbitMQ
 from infraestructure.repository import order_repository_impl
 from application.service.order_service import Order_service
 from domain.model.order_domain import Order_domain
@@ -9,9 +11,11 @@ from infraestructure.web.dto.response.base_response import Base_response
 from domain.model.status_enum import Status_enum
 from infraestructure.mappers.order_mapper import to_domain_order_product
 
+
 controller = APIRouter()
 repository = order_repository_impl.Order_repository_impl()
 service = Order_service(repository)
+rabbit = RabbitMQ()
 
 
 @controller.get("/")
@@ -32,4 +36,9 @@ def create_order(order: List[Order_products_entity]):
 @controller.put("/update/{order_id}/{status}", response_model=Base_response)
 def update_order_status(order_id: str, status: Status_enum):
     service.update_status(order_id, status)
+    if status == Status_enum.SEND:
+        order_products = service.get_order_products_by_id(order_id)
+        order_products_dicts = [product.__dict__ for product in order_products]
+        message = {"products": order_products_dicts}
+        rabbit.publish_message(message)
     return Base_response(data=None, message="Order status updated successfully")

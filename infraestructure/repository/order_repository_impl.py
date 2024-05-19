@@ -5,7 +5,8 @@ from domain.model.order_domain import Order_domain
 from infraestructure.configuration.db import SessionLocal
 from domain.repository.order_repository import Order_repository
 from infraestructure.schema.models_factory import Orders, Order_product
-from infraestructure.mappers.order_mapper import to_db_order, to_dict_order, to_domain_order, to_db_order_product
+from infraestructure.mappers.order_mapper import to_db_order, to_dict_order, to_domain_order, to_db_order_product, \
+    to_domain_order_product
 from domain.model.status_enum import Status_enum as OrderStatus
 from domain.model.order_product_domain import Order_products_domain as OrderProductDomain
 
@@ -42,6 +43,10 @@ class Order_repository_impl(Order_repository, ABC):
             self.db.commit()
             self.db.refresh(order)
         self.db.close()
+
+    def get_order_products_by_id(self, order_id: str) -> List[OrderProductDomain]:
+        order_products = self.db.query(Order_product).filter(Order_product.order_id == order_id).all()
+        return [to_domain_order_product(product, order_id) for product in order_products]
 
     def get_by_id(self, order_id: str) -> Order_domain:
         order = self.db.query(Orders).filter(Orders.id == order_id).first()

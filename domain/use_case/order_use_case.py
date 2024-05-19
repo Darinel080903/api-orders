@@ -25,6 +25,10 @@ class Order_use_case(ABC):
         raise NotImplemented
 
     @abstractmethod
+    def get_order_products_by_id(self, order_id: str) -> List[Order_products_domain]:
+        raise NotImplemented
+
+    @abstractmethod
     def update_total(self, order_id: str, price: int):
         raise NotImplemented
 
